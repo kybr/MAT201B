@@ -23,7 +23,7 @@ class MyApp : public App {
   Mesh pic, rgb, hsv, somthing_else;
   Mesh actual;
 
-  void onCreate() {
+  void onCreate() override {
     const char *filename = "hubble.jpg";
     auto imageData = Image(filename);
     if (imageData.array().size() == 0) {
@@ -36,6 +36,7 @@ class MyApp : public App {
     int W = imageData.width();
     int H = imageData.height();
     pic.primitive(Mesh::POINTS);
+    actual.primitive(Mesh::POINTS);
 
     // iterate through all the pixel, scanning each row
     for (int row = 0; row < H; row++) {
@@ -44,9 +45,16 @@ class MyApp : public App {
         pic.vertex(1.0 * column / W, 1.0 * row / H, 0.0);
         pic.color(pixel.r / 255.0, pixel.g / 255.0, pixel.b / 255.0);
 
+        // initial setting of actual
+        actual.vertex(1.0 * column / W, 1.0 * row / H, 0.0);
+        actual.color(pixel.r / 255.0, pixel.g / 255.0, pixel.b / 255.0);
+
         // XXX you put more code here!
       }
     }
+
+    // set the camera position back some (z=3) and center on (x=0.5, y=0.5)
+    nav().pos(0.5, 0.5, 3);
   }
 
   void onAnimate(double dt) override {
@@ -69,13 +77,14 @@ class MyApp : public App {
 
         // XXX you put more code here!
         // hint reset animation parameter
+
       default:
         break;
     }
     return true;
   }
 
-  void onDraw(Graphics &g) {
+  void onDraw(Graphics &g) override {
     g.clear(0.2f);
     g.meshColor();
     g.draw(actual);
