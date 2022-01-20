@@ -19,6 +19,7 @@ string slurp(string fileName);  // forward declaration
 struct AlloApp : App {
   Parameter pointSize{"/pointSize", "", 1.0, "", 0.0, 2.0};
   Parameter timeStep{"/timeStep", "", 0.1, "", 0.01, 0.6};
+  //
 
   ShaderProgram pointShader;
 
@@ -34,6 +35,7 @@ struct AlloApp : App {
     auto &gui = GUIdomain->newGUI();
     gui.add(pointSize);  // add parameter to GUI
     gui.add(timeStep);   // add parameter to GUI
+    //
   }
 
   void onCreate() override {
@@ -81,28 +83,31 @@ struct AlloApp : App {
 
     // Calculate forces
 
-    // XXX you put code here that calculates gravitational forces
+    // XXX you put code here that calculates gravitational forces and sets accelerations
     // These are pair-wise. Each unique pairing of two particles
     // These are equal but opposite: A exerts a force on B while B exerts that
     // same amount of force on A (but in the opposite direction!) Use a nested
     // for loop to visit each pair once The time complexity is O(n*n)
     //
+      // Vec3f has lots of operations you might use...
+    // • +=
+    // • -=
+    // • +
+    // • -
+    // • .normalize() ~ Vec3f points in the direction as it did, but has length 1
+    // • .normalize(float scale) ~ same but length `scale`
+    // • .mag() ~ length of the Vec3f
+    // • .magSqr() ~ squared length of the Vec3f
+    // • .dot(Vec3f f)
+    // • .cross(Vec3f f)
+
 
     // drag
     for (int i = 0; i < velocity.size(); i++) {
       acceleration[i] -= velocity[i] * 0.1;
     }
 
-    // Vec3f has lots of operations you might use...
-    // • +=
-    // • -=
-    // • .normalize()
-    // • .normalize(float scale)
-    // • .mag()
-    // • .magSqr()
-    // • .dot(Vec3f f)
-    // • .cross(Vec3f f)
-
+  
     // Integration
     //
     vector<Vec3f> &position(mesh.vertices());
