@@ -33,9 +33,9 @@ struct AlloApp : App {
     // set up GUI
     auto GUIdomain = GUIDomain::enableGUI(defaultWindowDomain());
     auto &gui = GUIdomain->newGUI();
-    gui.add(pointSize);  // add parameter to GUI
-    gui.add(timeStep);   // add parameter to GUI
-    gui.add(dragFactor);   // add parameter to GUI
+    gui.add(pointSize);   // add parameter to GUI
+    gui.add(timeStep);    // add parameter to GUI
+    gui.add(dragFactor);  // add parameter to GUI
   }
 
   void onCreate() override {
