@@ -12,7 +12,7 @@ double r() { return rnd::uniformS(); }
 
 struct MyApp : App {
   Pose p, q;
-  Parameter t{"t", 0.37, 0, 1};
+  Parameter t{"t", 0.37, -0.3, 1.3};
   float angle{0};
   double time{0};
 
