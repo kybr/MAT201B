@@ -4,6 +4,7 @@
 //
 #include "al/app/al_App.hpp"
 #include "al/app/al_GUIDomain.hpp"
+#include "al/math/al_Functions.hpp"
 #include "al/math/al_Random.hpp"
 
 using namespace al;
@@ -25,16 +26,25 @@ struct MyApp : App {
 
   void onCreate() override {
     randomize();
-    nav().pos(0, 0, 10);
+    nav().pos(3, 4, 10);
+    nav().faceToward(0, 0, 0);
   }
 
   void onAnimate(double dt) override {
+
+    // animation parameter used to rotate the drawing
     angle += 0.87;
+
+    // animation parameter used to animate the wrawing and periodically reset
     time += dt;
     if (time > 4) {
       time -= 4;
       randomize();
     }
+
+    // al::fold and al::wrap are so useful!
+    t.set(fold(time / 2));
+    // t.set(al::wrap(time));
   }
 
   void onDraw(Graphics &g) override {
@@ -71,6 +81,16 @@ struct MyApp : App {
       mesh.color(0, 1, 0);
       mesh.vertex(w + u.rotate(Vec3d(0, 0, -1)));
       mesh.color(0, 1, 0);
+
+      // reference frame
+      mesh.vertex(-10, 0, 0);
+      mesh.vertex(10, 0, 0);
+      mesh.vertex(0, -10, 0);
+      mesh.vertex(0, 10, 0);
+      mesh.vertex(0, 0, -10);
+      mesh.vertex(0, 0, 10);
+      for (int i = 0; i < 6; i++)
+        mesh.color(0, 0, 0);
 
       g.draw(mesh);
     }
