@@ -16,17 +16,31 @@ struct MyApp : App {
   double time{0};
   double angle{0};
 
-  void onCreate() override {
+  Mesh mesh;
 
+  void onCreate() override {
     // place the camera so that we can see the axes
     nav().pos(0.5, 0.7, 5);
-    nav().faceToward(Vec3d(0, 0, 0));
+    nav().faceToward(Vec3d(0, 0, 0), Vec3d(0, 1, 0));
 
     // Don't do this:
     // nav().faceToward(0, 0, 0);
     // because it will be interpreted as this:
     // nav().faceToward(Vec3d(0), Vec3d(0), 0);
     // which has no effect because of the final 0!
+
+    // create a prototype agent body
+    mesh.primitive(Mesh::TRIANGLE_FAN);
+    mesh.vertex(0, 0, -2);
+    mesh.color(0, 0, 0);
+    mesh.vertex(0, 1, 0);
+    mesh.color(1, 0, 0);
+    mesh.vertex(-1, 0, 0);
+    mesh.color(0, 1, 0);
+    mesh.vertex(1, 0, 0);
+    mesh.color(0, 0, 1);
+    mesh.vertex(0, 1, 0);
+    mesh.color(1, 0, 0);
   }
 
   void randomize() {
@@ -35,8 +49,8 @@ struct MyApp : App {
   }
 
   void onAnimate(double dt) override {
-    if (time > 5) {
-      time -= 5;
+    if (time > 9) {
+      time -= 9;
       randomize();
     }
     time += dt;
@@ -45,10 +59,11 @@ struct MyApp : App {
     // The target (blue) aims for the origin (0,0,0) while the agent (red) aims
     // for the target. moveF(t) means "move forward" by amount t. faceToward
     // also accepts an amount t that controls the rate of steering.
-    target.faceToward(Vec3d(0, 0, 0), 0.01);
+    target.faceToward(Vec3d(0, 0, 0), Vec3d(0, 1, 0), 0.03);
     target.moveF(0.2);
-    agent.faceToward(target, 0.01);
+    agent.faceToward(target, Vec3d(0, 1, 0), 0.03);
     agent.moveF(0.2);
+    // agent.nudgeToward(target, -0.01);
 
     // XXX we have to step each Nav to get them to move and turn!!!
     // skip this and nothing will move.
@@ -65,8 +80,7 @@ struct MyApp : App {
     // angle or "handheld". Cuts and fades are also possible.
   }
 
-  void onDraw(Graphics &g) override {
-
+  void onDraw(Graphics& g) override {
     // graphics / drawing settings
     g.clear(1);
     g.meshColor();
@@ -74,30 +88,8 @@ struct MyApp : App {
 
     g.rotate(angle, Vec3d(0, 1, 0));
 
-    // draw the two nav positions
-    {
-      Mesh mesh(Mesh::POINTS);
-      mesh.vertex(agent.pos());
-      mesh.color(1, 0, 0);
-      mesh.vertex(target.pos());
-      mesh.color(0, 0, 1);
-      g.draw(mesh);
-    }
-
-    // draw the two nav orientations
     {
       Mesh mesh(Mesh::LINES);
-
-      mesh.vertex(agent.pos());
-      mesh.color(1, 0, 0);
-      mesh.vertex(agent.pos() + agent.quat().rotate(Vec3d(0, 0, -1)) * 0.1);
-      mesh.color(1, 0, 0);
-
-      mesh.vertex(target.pos());
-      mesh.color(0, 0, 1);
-      mesh.vertex(target.pos() + target.quat().rotate(Vec3d(0, 0, -1)) * 0.1);
-      mesh.color(0, 0, 1);
-
       // draw the axes
       mesh.vertex(-10, 0, 0);
       mesh.vertex(10, 0, 0);
@@ -105,16 +97,35 @@ struct MyApp : App {
       mesh.vertex(0, 10, 0);
       mesh.vertex(0, 0, -10);
       mesh.vertex(0, 0, 10);
-      for (int i = 0; i < 6; i++)
-        mesh.color(0, 0, 0);
+      for (int i = 0; i < 6; i++) mesh.color(0, 0, 0);
 
       g.draw(mesh);
+    }
+
+    // draw a body for each agent
+    {
+      Nav& a(agent);
+      g.pushMatrix();  // push()
+      g.translate(a.pos());
+      g.rotate(a.quat());  // rotate using the quat
+      g.scale(0.03);
+      g.draw(mesh);
+      g.popMatrix();  // pop()
+    }
+    {
+      Nav& a(target);
+      g.pushMatrix();  // push()
+      g.translate(a.pos());
+      g.rotate(a.quat());  // rotate using the quat
+      g.scale(0.03);
+      g.draw(mesh);
+      g.popMatrix();  // pop()
     }
   }
 
   void onInit() override {
     auto GUIdomain = GUIDomain::enableGUI(defaultWindowDomain());
-    auto &gui = GUIdomain->newGUI();
+    auto& gui = GUIdomain->newGUI();
     // gui.add(t);
   }
 };
