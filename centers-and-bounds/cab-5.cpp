@@ -49,9 +49,6 @@ class MyApp : public App {
   }
 
   void onAnimate(double dt) override {
-    // for (auto&& b : local) {
-    //   b = false;
-    // }
     const Vec3f& point = position[index];
 
     int count = 0;
@@ -59,15 +56,13 @@ class MyApp : public App {
     for (int i = 0; i < N; i++) {
       local[i] = false;
       if ((point - position[i]).mag() < radius) {
-        local[i] = true;
-        sum += position[i];
+        local[i] = true;     // mark this as "in the local flock"
+        sum += position[i];  // find the center
         count++;
         // find the bounds of these points
-        // find the center
       }
     }
-    center = sum / count;
-    std::cout << center << std::endl;
+    center = sum / count;  // what if count == 0?
   }
 
   void onDraw(Graphics& g) override {
