@@ -15,7 +15,13 @@ using namespace al;
 #include <unordered_map>
 
 std::vector<std::string> ip{
-    "192.168.78.141",
+    "192.168.2.1",  // Karl
+    "192.168.2.2",  // Sihwa
+    "192.168.2.3",  // Adam
+    "192.168.2.4",  // Ana
+    "192.168.2.5",  // Sabina
+    "192.168.2.6",  // Iason
+    "192.168.2.7",  // Nefeli
 };
 
 struct Agent {
