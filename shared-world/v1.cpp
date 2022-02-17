@@ -66,6 +66,9 @@ struct MyApp : App {
   void onDraw(Graphics& g) override {
     g.clear(0.2);
 
+    g.depthTesting(true);
+    g.lighting(true);
+
     for (auto a : agent) {
       g.pushMatrix();
       g.translate(a.second.pos());

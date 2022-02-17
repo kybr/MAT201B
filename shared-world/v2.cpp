@@ -94,11 +94,15 @@ struct MyApp : App {
   void onDraw(Graphics& g) override {
     g.clear(0.2);
 
+    g.depthTesting(true);
+    g.lighting(true);
+
     for (auto a : agent) {
       g.pushMatrix();
       g.translate(a.second.pose.pos());
       g.rotate(a.second.pose.quat());
       g.scale(0.1);
+      g.color(a.second.rgb);
       g.draw(cone);
       g.popMatrix();
     }
