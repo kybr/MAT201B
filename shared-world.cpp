@@ -5,8 +5,9 @@
 //
 
 #include "al/app/al_App.hpp"
-#include "al/graphics/al_Shapes.hpp"
 #include "al/app/al_GUIDomain.hpp"
+#include "al/graphics/al_Shapes.hpp"
+#include "al/math/al_Random.hpp"
 
 using namespace al;
 
@@ -16,44 +17,50 @@ using namespace al;
 struct MyApp : App {
   osc::Send client;
   std::unordered_map<std::string, al::Pose> agent;
-    Mesh cone{Mesh::TRIANGLES};
+  Mesh cone{Mesh::TRIANGLES};
+  std::string me;
 
   void onCreate() override {
     client.open(9010, "255.255.255.255");
-  
+
     addCone(cone);
     cone.generateNormals();
     cone.decompress();
+
+    char buffer[20];
+    sprintf(buffer, "~%d~", rnd::uniform(10000));
+    me += buffer;
   }
 
   void onMessage(osc::Message& m) override {
-    // m.print();
-
     // receive someones pose
-    if (m.addressPattern().find("/pose/") != std::string::npos) {
+    if (m.addressPattern() == "/pose") {
+      // m.print();
       std::string who;
       m >> who;
-
-      Pose p;
-      m >> p.pos().x;
-      m >> p.pos().y;
-      m >> p.pos().z;
-      m >> p.quat().w;
-      m >> p.quat().x;
-      m >> p.quat().y;
-      m >> p.quat().z;
-      agent[who] = p;
+      if (who != me) {
+        Pose p;
+        m >> p.pos().x;
+        m >> p.pos().y;
+        m >> p.pos().z;
+        m >> p.quat().w;
+        m >> p.quat().x;
+        m >> p.quat().y;
+        m >> p.quat().z;
+        agent[who] = p;
+      }
     }
   }
 
   void onAnimate(double dt) override {
     // broadcast our pose
-    client.send(std::string("/pose/"), "yourname",            //
+    client.send("/pose", me,                                  //
                 nav().pos().x, nav().pos().y, nav().pos().z,  //
                 nav().quat().w, nav().quat().x, nav().quat().y, nav().quat().z);
   }
 
-  void onDraw(Graphics& g) override { g.clear(0.2);
+  void onDraw(Graphics& g) override {
+    g.clear(0.2);
 
     for (auto a : agent) {
       g.pushMatrix();
