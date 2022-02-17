@@ -14,15 +14,16 @@ using namespace al;
 #include <regex>
 #include <unordered_map>
 
+std::vector<std::string> ip{
+    "192.168.78.121",
+};
+
 struct MyApp : App {
-  osc::Send client;
   std::unordered_map<std::string, al::Pose> agent;
   Mesh cone{Mesh::TRIANGLES};
   std::string me;
 
   void onCreate() override {
-    client.open(9010, "255.255.255.255");
-
     addCone(cone);
     cone.generateNormals();
     cone.decompress();
@@ -54,9 +55,12 @@ struct MyApp : App {
 
   void onAnimate(double dt) override {
     // broadcast our pose
-    client.send("/pose", me,                                  //
+    for (auto i : ip) {
+      osc::Send(9010, i.c_str())
+          .send("/pose", me,                                  //
                 nav().pos().x, nav().pos().y, nav().pos().z,  //
                 nav().quat().w, nav().quat().x, nav().quat().y, nav().quat().z);
+    }
   }
 
   void onDraw(Graphics& g) override {
