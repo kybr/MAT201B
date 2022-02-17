@@ -15,7 +15,7 @@ using namespace al;
 #include <unordered_map>
 
 std::vector<std::string> ip{
-    "192.168.78.121",
+    "192.168.78.141",
 };
 
 struct Agent {
@@ -31,8 +31,8 @@ struct MyApp : App {
 
   void onCreate() override {
     addCone(cone);
-    cone.generateNormals();
     cone.decompress();
+    cone.generateNormals();
 
     char buffer[20];
     sprintf(buffer, "~%d~", rnd::uniform(10000));
