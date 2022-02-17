@@ -31,8 +31,8 @@ struct MyApp : App {
 
   void onCreate() override {
     addCone(cone);
-    cone.generateNormals();
     cone.decompress();
+    cone.generateNormals();
 
     char buffer[20];
     sprintf(buffer, "~%d~", rnd::uniform(10000));
