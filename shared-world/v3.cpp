@@ -24,10 +24,18 @@ std::vector<std::string> ip{
     "192.168.2.7",  // Nefeli
 };
 
+struct Agent {
+  Pose pose;
+  RGB rgb;
+  float scale;
+};
+
 struct MyApp : App {
-  std::unordered_map<std::string, al::Pose> agent;
+  std::unordered_map<std::string, Agent> agent;
   Mesh cone{Mesh::TRIANGLES};
   std::string me;
+  ParameterColor color{"Color"};
+  Parameter scale{"Scale", 0.1, 0.05, 0.9};
 
   void onCreate() override {
     addCone(cone);
@@ -35,7 +43,7 @@ struct MyApp : App {
     cone.generateNormals();
 
     char buffer[20];
-    sprintf(buffer, "~%d~", rnd::uniform(10000));  // ~1234~ a key
+    sprintf(buffer, "~%d~", rnd::uniform(10000));
     me += buffer;
   }
 
@@ -44,7 +52,7 @@ struct MyApp : App {
     if (m.addressPattern() == "/pose") {
       // m.print();
       std::string who;
-      m >> who;  // means "pick off the next argument"
+      m >> who;
       if (who != me) {
         Pose p;
         m >> p.pos().x;
@@ -54,9 +62,39 @@ struct MyApp : App {
         m >> p.quat().x;
         m >> p.quat().y;
         m >> p.quat().z;
-        agent[who] = p;
-        // array[int index] = something
-        // dictionary[string index] = something
+
+        if (agent.find(who) == agent.end()) {
+          agent[who] = Agent();
+        }
+        agent[who].pose.set(p);
+      }
+    }
+
+    if (m.addressPattern() == "/color") {
+      std::string who;
+      m >> who;
+      if (who != me) {
+        RGB c;
+        m >> c.r;
+        m >> c.g;
+        m >> c.b;
+
+        if (agent.find(who) != agent.end()) {
+          agent[who].rgb.set(c);
+        }
+      }
+    }
+
+    if (m.addressPattern() == "/scale") {
+      std::string who;
+      m >> who;
+      if (who != me) {
+        float s;
+        m >> s;
+
+        if (agent.find(who) != agent.end()) {
+          agent[who].scale = s;
+        }
       }
     }
   }
@@ -68,10 +106,10 @@ struct MyApp : App {
           .send("/pose", me,                                  //
                 nav().pos().x, nav().pos().y, nav().pos().z,  //
                 nav().quat().w, nav().quat().x, nav().quat().y, nav().quat().z);
-
-      // /address/pattern,type-string\0binary-data
-      // /pose           ,sddddddd
-      // \0~1234~••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+      osc::Send(9010, i.c_str())
+          .send("/color", me,  //
+                color.get().r, color.get().g, color.get().b);
+      osc::Send(9010, i.c_str()).send("/scale", me, scale.get());
     }
   }
 
@@ -83,9 +121,10 @@ struct MyApp : App {
 
     for (auto a : agent) {
       g.pushMatrix();
-      g.translate(a.second.pos());
-      g.rotate(a.second.quat());
-      g.scale(0.1);
+      g.translate(a.second.pose.pos());
+      g.rotate(a.second.pose.quat());
+      g.scale(a.second.scale);
+      g.color(a.second.rgb);
       g.draw(cone);
       g.popMatrix();
     }
@@ -96,10 +135,10 @@ struct MyApp : App {
   void onSound(AudioIOData& io) override {}
 
   void onInit() override {
-    // set up GUI
     auto GUIdomain = GUIDomain::enableGUI(defaultWindowDomain());
     auto& gui = GUIdomain->newGUI();
-    // gui.add(color);
+    gui.add(color);
+    gui.add(scale);
   }
 };
 
