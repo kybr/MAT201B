@@ -1,11 +1,10 @@
-/*
-  This example shows how to use Image, Array and Texture to read a .jpg file,
-display it as an OpenGL texture and print the pixel values on the command line.
-Notice that while the intput image has only 4 pixels, the rendered texture is
-smooth.  This is because interpolation is done on the GPU.
-
-  Karl Yerkes and Matt Wright (2011/10/10)
-*/
+// MAT201B
+// Karl Yerkes
+// 2022-01-?
+// based on the `textureImage.cpp` AlloLib example by
+// Karl Yerkes and Matt Wright (2011/10/10)
+//
+// starter code for assignment 1
 
 #include <cassert>
 #include <cstdint>

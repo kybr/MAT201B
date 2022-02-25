@@ -17,7 +17,12 @@ struct MyApp : App {
     gui.add(value);
   }
 
-  void onCreate() override { parameterServer().addListener("127.0.0.1", 9999); }
+  void onCreate() override {
+    parameterServer().addListener("127.0.0.1", 9999);
+
+    // example of sending an OSC message
+    osc::Send(9999, "127.0.0.1").send("/foo", 1, 2.0f, 3.0);
+  }
 
   void onMessage(osc::Message& m) override {
     m.print();
