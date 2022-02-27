@@ -106,7 +106,6 @@ struct MyApp : App {
 
     curve.reset();
 
-    const int N = 100;
     for (int i = 0; i < M - 3; i++) {
       hermite(curve.vertices(), &control.vertices()[i], N, tension, bias);
     }

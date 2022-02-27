@@ -62,6 +62,12 @@ void hermite(std::vector<Vec3f>& out, const std::vector<Vec3f>& in, int N,
   }
 }
 
+// Bezier and Hermite curves here treat "control points" differently.
+// Given the 4 points [a, b, c, d], The Hermite curve evaluates a curve
+// between b and c while the a and d points "control" the curve. But,
+// the Bezier curve treats points b and c as control points; The
+// evaluated curve passes through points a and d.
+
 Vec3f r() { return Vec3f(rnd::uniformS(), rnd::uniformS(), rnd::uniformS()); }
 
 struct MyApp : App {
