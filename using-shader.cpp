@@ -7,8 +7,8 @@ using namespace al;
 #include <vector>
 using namespace std;
 
-// this is the GLSL program to run on each VERTEX
-// it decides on the screen position (2D), given the world position (3D)
+// this is the GLSL program to run on each VERTEX it decides on the screen
+// position (2D), given the world position (3D)
 const char* vertex_code = R"(
 #version 400
 layout(location = 0) in vec3 vertexPosition; // DONT CHANGE
@@ -21,8 +21,9 @@ void main() {
 }
 )";
 
-// this is the GLSL program to run on each FRAGMENT (drawable pixel)
-// it decides on the color of each pixel, given various data (time, screen position, input color, etc.)
+// this is the GLSL program to run on each FRAGMENT (drawable pixel) it decides
+// on the color of each pixel, given various data (time, screen position, input
+// color, etc.)
 const char* fragment_code = R"(
 #version 400
 layout(location = 0) out vec4 fragmentColor;
@@ -69,8 +70,6 @@ struct AlloApp : App {
     g.clear(color);
     g.shader(shader);
     Color c(color);
-    g
-    
     g.shader().uniform("time", (float)time);
     g.draw(mesh);
   }
