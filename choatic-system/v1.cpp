@@ -47,10 +47,11 @@ struct MyApp : App {
     for (int i = 0; i < (int)p[0]; i++) {
       Vec3f _(lorenz.vertices().back());
       float rho(p[5]), sigma(p[6]), beta(p[7]), h(p[1]);
-      Vec3f dx(sigma * (_.y - _.x),      //
-               _.x * (rho - _.z) - _.y,  //
-               _.x * _.y - beta * _.z);
-      lorenz.vertex(_ + dx * h);
+      // XXX plug your system in here
+      Vec3f f(sigma * (_.y - _.x),      //
+              _.x * (rho - _.z) - _.y,  //
+              _.x * _.y - beta * _.z);
+      lorenz.vertex(_ + h * f);
       // the line above is Euler's method!
     }
 
