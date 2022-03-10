@@ -3,7 +3,7 @@
 // 2022-03-10
 //
 
-#include "Gamma/Oscillator.h"
+#include "Gamma/Oscillator.h" // gam::Sine<>
 #include "al/app/al_App.hpp"
 #include "al/app/al_GUIDomain.hpp"
 

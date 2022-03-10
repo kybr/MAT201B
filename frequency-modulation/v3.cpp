@@ -47,7 +47,9 @@ struct MyApp : App {
     auto GUIdomain = GUIDomain::enableGUI(defaultWindowDomain());
     auto& gui = GUIdomain->newGUI();
     gui.add(gain).add(background);
+
     timer.period(1);
+
     mesh.primitive(Mesh::LINE_STRIP);
     for (int i = 0; i < stft.numBins(); i++) {
       mesh.vertex((float)i / stft.numBins(), 0);
