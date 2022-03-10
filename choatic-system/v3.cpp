@@ -16,44 +16,45 @@
 
 #include "al/app/al_App.hpp"
 #include "al/app/al_GUIDomain.hpp"
+#include "al/math/al_Random.hpp"
 
 using namespace al;
 
 struct MyApp : App {
-  static const int P = 9;
-  static const int D = 2;
+  static const int P = 8;
+  static const int D = 3;
   Parameter p[P]{
-      {"N", "p", 1000, 0, 10000},  // p[0] = N (simulation steps)
-      {"h", "p", 0.01, 0, 0.018},  // p[1] = h (simulation time step)
-      {"x0", "p", -0.72, -D, D},   // p[2] = x0 | initial
-      {"y0", "p", -0.64, -D, D},   // p[3] = y0 | conditions
-      {"z0", "p", 0, -D, D},       // p[4] = z0 |
-      {"a", "p", 0.9, -3, 3},      // p[5] = a
-      {"b", "p", -0.6, -3, 3},     // p[6] = b
-      {"c", "p", 2.0, -3, 3},      // p[7] = c
-      {"d", "p", 0.9, -3, 3},      // p[8] = d
+      {"N", "p", 10000, 0, 100000},  // p[0] = N (simulation steps)
+      {"h", "p", 0.01, 0, 0.018},    // p[1] = h (simulation time step)
+      {"x0", "p", 0, -D, D},         // p[2] = x0 | initial
+      {"y0", "p", 0, -D, D},         // p[3] = y0 | conditions
+      {"z0", "p", 0, -D, D},         // p[4] = z0 |
+      {"a", "p", 0, -D, D},          // p[5] = a  | simulation
+      {"b", "p", 0, -D, D},          // p[6] = b  | parameters
+      {"c", "p", 0, -D, D},          // p[7] = c  |
   };
-  // a = 0.9, b = -0.6013, c = 2.0, d = 0.50
-  // a = 0.3, b = -0.6000, c = 2.0, d = 0.27
 
-  Parameter width{"Width", 0.01, 0, 0.2};
+  Parameter width{"Width", 0.07, 0, 0.2};
 
   Mesh mesh;
+  Mesh point;
   bool light{false};
 
   void recompute() {
     mesh.reset();
     mesh.primitive(Mesh::LINE_STRIP);
-
     mesh.vertex(p[2], p[3], p[4]);
-
     for (int i = 0; i < (int)p[0]; i++) {
       Vec3f _(mesh.vertices().back());
-      float a(p[5]), b(p[6]), c(p[7]), d(p[8]), h(p[1]);
-      mesh.vertex(_.x * _.x - _.y * _.y + a * _.x + b * _.y,  // x
-                  2 * _.x * _.y + c * _.x + d * _.y,          // y
-                  _.z + h                                     // z
-      );
+      // This is the T system, not Lorenz
+      // https://www.sciencedirect.com/science/article/abs/pii/S0960077906007958
+      // _Analysis of a 3D chaotic system_
+      float a(p[5]), b(p[6]), c(p[7]), h(p[1]);
+      Vec3f f(a * (_.y - _.x),                //
+              (c - a) * _.x - a * _.x * _.z,  //
+              -b * _.z + _.x * _.y);
+      mesh.vertex(_ + h * f);
+      // the line above is Euler's method!
     }
 
     mesh.ribbonize(width, true);
@@ -63,6 +64,10 @@ struct MyApp : App {
 
   void onCreate() override {
     recompute();
+    point.primitive(Mesh::POINTS);
+    for (int i = 0; i < 100; i++) {
+      point.vertex(rnd::uniformS(2), rnd::uniformS(2), rnd::uniformS(2));
+    }
     nav().pos(0, 0, 10);
   }
 
@@ -74,17 +79,19 @@ struct MyApp : App {
     g.lighting(light);
     g.blendTrans();
     g.color(1);
-    // g.scale(0.1);
+    g.scale(0.1);
     g.draw(mesh);
 
+    g.draw(point);
+
     // draw red ends
+    g.meshColor();
     g.pointSize(8);
     Mesh m{Mesh::POINTS};
     m.vertex(mesh.vertices()[0]);
+    g.color(0, 0, 1);
     m.vertex(mesh.vertices().back());
-    m.color(0, 1, 1);
-    m.color(1, 0, 0);
-    g.meshColor();
+    g.color(1, 0, 0);
     g.draw(m);
   }
 
@@ -110,7 +117,28 @@ struct MyApp : App {
     return false;
   }
   void onSound(AudioIOData& io) override {}
-  void onAnimate(double) override {}
+
+  double t{0};
+  void onAnimate(double dt) override {
+    t += dt;
+    if (t > 10) {
+      t -= 10;
+
+      for (int i = 0; i < point.vertices().size(); i++) {
+        point.vertices()[i] =
+            Vec3f(rnd::uniformS(2), rnd::uniformS(2), rnd::uniformS(2));
+      }
+    }
+
+    for (int i = 0; i < point.vertices().size(); i++) {
+      float a(p[5]), b(p[6]), c(p[7]), h(p[1]);
+      Vec3f& _(point.vertices()[i]);
+      Vec3f f(a * (_.y - _.x),                //
+              (c - a) * _.x - a * _.x * _.z,  //
+              -b * _.z + _.x * _.y);
+      _ += h * f;
+    }
+  }
 };
 
 int main() {

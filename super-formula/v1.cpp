@@ -55,17 +55,26 @@ struct MyApp : App {
   float a{0};
   float b{0};
 
+  PresetHandler presetHandler{"sequencerPresets"};
+
   void onInit() override {
     auto GUIdomain = GUIDomain::enableGUI(defaultWindowDomain());
     auto& gui = GUIdomain->newGUI();
+    gui.add(presetHandler);
+
     gui.add(N);
+    presetHandler << N;
     gui.add(primitive);
+    presetHandler << primitive;
     gui.add(spin[0]).add(spin[1]);
+    presetHandler << spin[0] << spin[1];
     for (int i = 0; i < 6; i++) {
       gui.add(r1[i]);
+      presetHandler << r1[i];
     }
     for (int i = 0; i < 6; i++) {
       gui.add(r2[i]);
+      presetHandler << r2[i];
     }
   }
 

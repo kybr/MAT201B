@@ -46,8 +46,8 @@ struct MyApp : App {
     lorenz.vertex(p[2], p[3], p[4]);
     for (int i = 0; i < (int)p[0]; i++) {
       Vec3f _(lorenz.vertices().back());
+      // Lorenz
       float rho(p[5]), sigma(p[6]), beta(p[7]), h(p[1]);
-      // XXX plug your system in here
       Vec3f f(sigma * (_.y - _.x),      //
               _.x * (rho - _.z) - _.y,  //
               _.x * _.y - beta * _.z);
